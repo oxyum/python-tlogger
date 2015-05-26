@@ -1,0 +1,4 @@
+include DESCRIPTION.rst
+include requirements.txt
+# Include the test suite (FIXME: does not work yet)
+# recursive-include tests *

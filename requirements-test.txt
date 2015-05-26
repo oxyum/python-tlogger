@@ -1,0 +1,7 @@
+-r requirements.txt
+
+mock
+pytest
+pytest-cov
+
+django==1.8
