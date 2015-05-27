@@ -31,6 +31,7 @@ class ActionMiddleware(object):
 
     def process_response(self, request, response):
         action = ActionBinder.get_action(request)
-        action.finish()
-        ActionBinder.unbind(request)
+        if action is not None:
+            action.finish()
+            ActionBinder.unbind(request)
         return response

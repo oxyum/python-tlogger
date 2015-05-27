@@ -13,7 +13,7 @@ from tlogger.action_binder import ActionBinder
 
 @pytest.fixture
 def http_request():
-    return mock.Mock(POST={}, GET={}, META={'HTTP_REQUEST_ID': 'deadbeef'})
+    return mock.Mock(spec=[], POST={}, GET={}, META={'HTTP_REQUEST_ID': 'deadbeef'})
 
 
 @pytest.fixture
@@ -43,3 +43,9 @@ def test__process_response__finishes_action(http_request, action_middleware):
     result = action_middleware.process_response(http_request, response)
     assert result is response
     action.finish.assert_called_once_with()
+
+
+def test__process_response__wo_action(http_request, action_middleware):
+    response = mock.Mock()
+    result = action_middleware.process_response(http_request, response)
+    assert result is response
