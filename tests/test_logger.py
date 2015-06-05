@@ -27,7 +27,7 @@ def test__logger__call__wraps_function_wo_params(tlogger):
     def func(arg1, arg2):
         return arg1 + arg2
 
-    with mock.patch('%s.wrap_function' % MOD_PATH) as wrap_function:
+    with mock.patch('%s.wrap_descriptor_method' % MOD_PATH) as wrap_function:
         tlogger(func)
 
     wrap_function.assert_called_once_with(func, tlogger.action_class,
@@ -40,7 +40,7 @@ def test__logger__call__wraps_function_with_params(tlogger):
 
     params = {'spam': 'eggs'}
 
-    with mock.patch('%s.wrap_function' % MOD_PATH) as wrap_function:
+    with mock.patch('%s.wrap_descriptor_method' % MOD_PATH) as wrap_function:
         tlogger(params=params)(func)
 
     wrap_function.assert_called_once_with(func, tlogger.action_class,

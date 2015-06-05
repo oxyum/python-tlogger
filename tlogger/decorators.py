@@ -29,7 +29,11 @@ def wrap_function(func, action_class, logger, **params):
     :return: wrapping function
     :rtype: function
     """
-    action_name = params.pop('action_name', func.__name__)
+    action_name = (
+        params.pop('action_name', None) or
+        getattr(func, '__name__', None) or
+        getattr(func.__class__, '__name__')
+    )
 
     @wraps(func)
     def decorator(*args, **kwargs):
@@ -47,3 +51,21 @@ def wrap_function(func, action_class, logger, **params):
     return decorator
 
 
+def wrap_descriptor_method(descriptor, action_class, logger, **params):
+    class DescriptorProxy(object):
+        def __get__(self, instance, owner):
+            func = descriptor.__get__(instance, owner)
+            if callable(func):
+                return wrap_function(func, action_class, logger, **params)
+            return func
+
+        def __call__(self, *args, **kwargs):
+            return (
+                wrap_function(descriptor, action_class, logger, **params)
+                (*args, **kwargs)
+            )
+
+        def __getattr__(self, item):
+            return getattr(descriptor, item)
+
+    return DescriptorProxy()

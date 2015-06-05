@@ -16,8 +16,11 @@ from .utils import create_ts, create_logger, create_guid
 
 
 class Action(object):
+    CLEANSED_SUBSTITUTE = '******'
+
     def __init__(self, name, logger, level=INFO, uid=None, uid_field_name='id',
-                 params=None, action_stack=action_stack):
+                 params=None, action_stack=action_stack, sensitive_params=None,
+                 hide_params=None):
 
         self.name = name
         self.logger = logger
@@ -31,6 +34,8 @@ class Action(object):
         self.uid = uid
 
         self.action_stack = action_stack
+        self.sensitive_params = sensitive_params or ()
+        self.hide_params = hide_params or ()
 
     def __enter__(self):
         self.start()
@@ -58,7 +63,8 @@ class Action(object):
 
     @classmethod
     def create(cls, name, logger, level=INFO, id=None, guid=None, uid=None,
-               uid_field_name='id', params=None):
+               uid_field_name='id', params=None, sensitive_params=None,
+               hide_params=None):
 
         assert len(list(filter(lambda x: x is None, [id, uid, guid]))) >= 2,\
                'id, uid and guid arguments are mutually exclusive'
@@ -69,8 +75,8 @@ class Action(object):
             uid_field_name, uid = 'guid', guid
 
         return cls(name, logger, level=level, uid=uid,
-                   uid_field_name=uid_field_name, params=params)
-
+                   uid_field_name=uid_field_name, params=params,
+                   sensitive_params=sensitive_params, hide_params=hide_params)
 
     @classmethod
     def create_ad_hoc(cls, logger, params=None):
@@ -173,15 +179,18 @@ class Action(object):
 
         context.update(self._get_root_uid_item())
 
+        filtered_params = self._filter_hidden_params(self.params)
+        cleansed_params = self._cleanse_params(filtered_params)
+
         if include_params:
-            context.update(self.params)
+            context.update(cleansed_params)
 
         if include_status:
             context.update(status_code=self.status_code)
             if self.status_message:
                 context.update(status_msg=self.status_message)
-            if 'result' in self.params:
-                context.update(result=self.params['result'])
+            if 'result' in cleansed_params:
+                context.update(result=cleansed_params['result'])
 
         return context
 
@@ -201,3 +210,16 @@ class Action(object):
 
     def _get_root_uid_item(self):
         return (self.action_stack.root() or self).get_uid_item()
+
+    def _cleanse_params(self, params):
+        return {
+            k: self.CLEANSED_SUBSTITUTE if k in self.sensitive_params else v
+            for k, v in params.items()
+        }
+
+    def _filter_hidden_params(self, params):
+        return {
+            k: v
+            for k, v in params.items()
+            if k not in self.hide_params
+        }

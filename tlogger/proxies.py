@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 
 
 class BaseProxy(object):
-    def __init__(self, obj, action):
+    def __init__(self, obj, action=None):
         self._wrapped = obj
         self._action = action
 

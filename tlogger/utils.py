@@ -22,3 +22,11 @@ def create_logger(name):
 
 def create_guid():
     return str(uuid4())
+
+
+def is_descriptor(obj):
+    if (hasattr(obj, '__get__') or
+        hasattr(obj, '__set__') or
+        hasattr(obj, '__delete__')):
+            return True
+    return False

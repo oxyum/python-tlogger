@@ -9,8 +9,16 @@ from .action_binder import ActionBinder
 from .action_stack import action_stack
 from .actions import Action
 from .constants import DEBUG, INFO, WARNING, ERROR, CRITICAL
-from .decorators import wrap_function
+from .decorators import wrap_descriptor_method, wrap_function
 from .proxies import ContextManagerProxy, IterableProxy
+from .utils import is_descriptor
+
+
+try:
+    from django import VERSION
+    DJANGO_AVAILABLE = True
+except ImportError:
+    DJANGO_AVAILABLE = False
 
 
 class Logger(object):
@@ -22,15 +30,34 @@ class Logger(object):
         if func is None:
             return self.parametrized_decorator(**kwargs)
 
-        return wrap_function(func, self.action_class, self.logger)
+        return self._decorator(func, self.action_class, self.logger)
+
+    if DJANGO_AVAILABLE:
+        def view(self, func=None, **kwargs):
+            params = self._get_view_defaults()
+            if func is None:
+                params.update(kwargs)
+                return self.parametrized_decorator(**params)
+
+            return self._decorator(func, self.action_class, self.logger,
+                                   **params)
+
+        def _get_view_defaults(self):
+            return dict(hide_params=['result'])
 
     def parametrized_decorator(self, **kwargs):
         action_class = kwargs.pop('action_class', self.action_class)
 
         def decorator(func):
-            return wrap_function(func, action_class, self.logger, **kwargs)
+            return self._decorator(func, action_class, self.logger, **kwargs)
 
         return decorator
+
+    def _decorator(self, func, action_class, logger, **kwargs):
+        if is_descriptor(func):
+            return wrap_descriptor_method(func, action_class, logger, **kwargs)
+
+        return wrap_function(func, action_class, logger, **kwargs)
 
     def dump(self, **kwargs):
         self.event(suffix='dump_variable', payload=kwargs)
@@ -68,6 +95,10 @@ class Logger(object):
 
     def error(self, msg, *args, **kwargs):
         self._raw('error', ERROR, msg, *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        exc_info = kwargs.pop('exc_info', 1)
+        self._raw('exception', ERROR, msg, *args, exc_info=exc_info, **kwargs)
 
     def critical(self, msg, *args, **kwargs):
         self._raw('critical', CRITICAL, msg, *args, **kwargs)
