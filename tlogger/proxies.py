@@ -36,8 +36,10 @@ class IterableProxy(BaseProxy):
         try:
             value = next(self._iterator)
             if self._steps:
-                self._action.emit_event('step',
-                                       {'value': value, 'step': self._count})
+                self._action.emit_event(
+                    'step',
+                    {'value': value, 'step': self._count}
+                )
             self._count += 1
             return value
         except StopIteration:

@@ -15,7 +15,7 @@ from .utils import is_descriptor
 
 
 try:
-    from django import VERSION
+    from django import VERSION  # nopep8
     DJANGO_AVAILABLE = True
 except ImportError:
     DJANGO_AVAILABLE = False

@@ -35,7 +35,7 @@ class OnlySpam(object):
         return 'OnlySpam.eggs %s' % arg
 
 
-@logger  #.wrap_in_action
+@logger
 def power(left, right):
     return left ** right
 

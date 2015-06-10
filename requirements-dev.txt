@@ -1,4 +1,6 @@
 -r requirements-test.txt
 
-ipython
+bumpversion>=0.5,<0.6
 ipdb
+ipython
+tox>=2.0,<2.1

@@ -77,7 +77,7 @@ def test__action__create__params(logger):
 
 
 def test__action__create__wrong_combination(logger):
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         Action.create('name', logger, id=1, guid=2)
 
 
@@ -144,9 +144,11 @@ def test__action__emit_event_calls_log(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event')
     assert get_logger.return_value.log.call_args == \
-           mock.call(constants.INFO,
-                     'ts=%s level=%s guid=%s event=%s',
-                     mock.ANY, constants.INFO, mock.ANY, 'action_name.event')
+           mock.call(
+               constants.INFO,
+               'ts=%s level=%s guid=%s event=%s',
+               mock.ANY, constants.INFO, mock.ANY, 'action_name.event'
+           )
 
 
 def test__action__emit_event_calls_log_with_payload(action):

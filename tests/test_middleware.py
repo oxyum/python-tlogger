@@ -13,7 +13,12 @@ from tlogger.action_binder import ActionBinder
 
 @pytest.fixture
 def http_request():
-    return mock.Mock(spec=[], POST={}, GET={}, META={'HTTP_REQUEST_ID': 'deadbeef'})
+    return mock.Mock(
+        spec=[],
+        POST={},
+        GET={},
+        META={'HTTP_REQUEST_ID': 'deadbeef'}
+    )
 
 
 @pytest.fixture

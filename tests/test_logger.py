@@ -179,4 +179,3 @@ def test__get_logger__returns_logger():
     name = 'logger.name'
     logger = get_logger(name)
     assert logger.logger == name
-

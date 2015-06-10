@@ -84,8 +84,10 @@ def test_thread_start(action_stack):
     action_stack.push(first)
 
     values_in_thread = []
+
     def in_thread():
         values_in_thread.append(action_stack.peek())
+
     thread = Thread(target=in_thread)
     thread.start()
     thread.join()
@@ -103,9 +105,11 @@ def test_thread_safety(action_stack):
 
     second = object()
     values_in_thread = []
+
     def in_thread():
         action_stack.push(second)
         values_in_thread.append(action_stack.peek())
+
     thread = Thread(target=in_thread)
     thread.start()
     thread.join()

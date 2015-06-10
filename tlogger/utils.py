@@ -25,8 +25,10 @@ def create_guid():
 
 
 def is_descriptor(obj):
-    if (hasattr(obj, '__get__') or
+    if (
+        hasattr(obj, '__get__') or
         hasattr(obj, '__set__') or
-        hasattr(obj, '__delete__')):
+        hasattr(obj, '__delete__')
+    ):
             return True
     return False

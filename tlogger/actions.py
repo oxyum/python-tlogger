@@ -66,8 +66,8 @@ class Action(object):
                uid_field_name='id', params=None, sensitive_params=None,
                hide_params=None):
 
-        assert len(list(filter(lambda x: x is None, [id, uid, guid]))) >= 2,\
-               'id, uid and guid arguments are mutually exclusive'
+        if len(list(filter(lambda x: x is not None, [id, uid, guid]))) > 1:
+            raise ValueError('id, uid and guid arguments are mutually exclusive')
 
         if id is not None:
             uid_field_name, uid = 'id', id
@@ -169,8 +169,8 @@ class Action(object):
     def _get_name(self):
         return self.name
 
-    def _event_context(self, suffix, level, include_params=False,
-                      include_status=False):
+    def _event_context(self, suffix, level,
+                       include_params=False, include_status=False):
         context = {
             'ts': create_ts(),
             'event': '%s.%s' % (self._get_name(), suffix),

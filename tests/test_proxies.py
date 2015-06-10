@@ -24,11 +24,13 @@ def iterable_proxy(action):
 @pytest.fixture
 def iterable_proxy_raise(action):
     from tlogger.proxies import IterableProxy
+
     def iterable():
         for i in range(3):
             if i == 1:
                 raise Exception('Whoa!')
             yield i
+
     return IterableProxy(iterable(), action)
 
 
@@ -78,7 +80,8 @@ def test_iterable_proxy_interrupted(action, iterable_proxy):
     # make a couple if steps and stop
     for i, n in enumerate(iterable_proxy):
         yielded.append(n)
-        if i == 1: break
+        if i == 1:
+            break
 
     assert yielded == [0, 1]
     assert action.start.call_count == 1

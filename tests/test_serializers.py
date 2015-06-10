@@ -31,4 +31,3 @@ def test_arguments_inline():
     event = Event({'foo': 1, 'bar': 2})
     serializer = KeyValueSerializer(event, inline=['bar'])
     assert serializer.arguments() == [1]
-

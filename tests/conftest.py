@@ -8,6 +8,12 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
+from django.conf import settings
+
+
+def pytest_configure():
+    settings.configure()
+
 
 @pytest.fixture
 def action_binder(function):
