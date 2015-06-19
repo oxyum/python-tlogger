@@ -32,6 +32,13 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+
+if sys.version_info[:2] < (3, 4):
+    install_requires = ['enum34']
+else:
+    install_requires = []
+
+
 setup(
     name='tlogger',
     version='0.2.1.dev',
@@ -68,6 +75,7 @@ setup(
         'pytest-cov',
         'pytest-django',
     ],
+    install_requires=install_requires,
     cmdclass={'test': PyTest},
     include_package_data=True,
     zip_safe=False,

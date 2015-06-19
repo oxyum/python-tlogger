@@ -8,7 +8,7 @@ from __future__ import unicode_literals
 from .action_binder import ActionBinder
 from .action_stack import action_stack
 from .actions import Action
-from .constants import DEBUG, INFO, WARNING, ERROR, CRITICAL
+from .constants import Level
 from .decorators import wrap_descriptor_method, wrap_function
 from .proxies import ContextManagerProxy, IterableProxy
 from .utils import is_descriptor
@@ -85,23 +85,24 @@ class Logger(object):
                    raw_msg=msg, raw_args=args, raw_kwargs=kwargs)
 
     def debug(self, msg, *args, **kwargs):
-        self._raw('debug', DEBUG, msg, *args, **kwargs)
+        self._raw('debug', Level.debug.value, msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
-        self._raw('info', INFO, msg, *args, **kwargs)
+        self._raw('info', Level.info.value, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
-        self._raw('warning', WARNING, msg, *args, **kwargs)
+        self._raw('warning', Level.warning.value, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
-        self._raw('error', ERROR, msg, *args, **kwargs)
+        self._raw('error', Level.error.value, msg, *args, **kwargs)
 
     def exception(self, msg, *args, **kwargs):
         exc_info = kwargs.pop('exc_info', 1)
-        self._raw('exception', ERROR, msg, *args, exc_info=exc_info, **kwargs)
+        self._raw('exception', Level.error.value, msg, *args, exc_info=exc_info,
+                  **kwargs)
 
     def critical(self, msg, *args, **kwargs):
-        self._raw('critical', CRITICAL, msg, *args, **kwargs)
+        self._raw('critical', Level.critical.value, msg, *args, **kwargs)
 
     def set_status(self, code, msg):
         self.get_current_action().set_status(code, msg)

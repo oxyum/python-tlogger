@@ -8,8 +8,8 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
-from tlogger import constants
 from tlogger.actions import Action
+from tlogger.constants import Level
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def test__action__create__defaults(logger):
     a = Action.create('name', logger)
     assert a.name == 'name'
     assert a.logger is logger
-    assert a.level == constants.INFO
+    assert a.level == Level.info
     assert a.status_code == 0
     assert a.status_message == ''
     assert a.params == {}
@@ -144,55 +144,40 @@ def test__action__emit_event_calls_log(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event')
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event'
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s', mock.ANY,
+                     'action_name.event')
 
 
 def test__action__emit_event_calls_log_with_payload(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', payload={'spam': 'eggs'})
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s spam=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event', 'eggs'
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s spam=%s', mock.ANY,
+                     'action_name.event', 'eggs')
 
 
 def test__action__emit_event_calls_log_with_event_class(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', payload={'spam': 'eggs'})
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s spam=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event', 'eggs'
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s spam=%s', mock.ANY,
+                     'action_name.event', 'eggs')
 
 
 def test__action__emit_event_calls_log_with_level(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
-        action.emit_event('event', level=constants.ERROR)
+        action.emit_event('event', level=Level.error)
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.ERROR,
-               'ts=%s level=%s guid=%s event=%s',
-               mock.ANY, constants.ERROR, mock.ANY, 'action_name.event'
-           )
+           mock.call(Level.error.value, 'guid=%s event=%s', mock.ANY,
+                     'action_name.event')
 
 
 def test__action__emit_event_calls_log_with_raw(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', raw_msg='Aaaa! %s %s', raw_args=[1, 2])
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s raw=Aaaa! %s %s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event', 1, 2
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s raw=Aaaa! %s %s',
+                     mock.ANY, 'action_name.event', 1, 2)
 
 
 def test__action__emit_event_calls_log_with_include_params(action):
@@ -202,12 +187,8 @@ def test__action__emit_event_calls_log_with_include_params(action):
         action.emit_event('event', include_params=True)
 
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s call_params=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event',
-               {'spam': 'eggs'}
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s spam=%s',
+                     mock.ANY, 'action_name.event', 'eggs')
 
 
 def test__action__emit_event_calls_log_with_include_status(action):
@@ -215,11 +196,8 @@ def test__action__emit_event_calls_log_with_include_status(action):
         action.emit_event('event', include_status=True)
 
     assert get_logger.return_value.log.call_args == \
-           mock.call(
-               constants.INFO,
-               'ts=%s level=%s guid=%s event=%s status_code=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event', 0
-           )
+           mock.call(Level.info.value, 'guid=%s event=%s status_code=%s',
+                     mock.ANY, 'action_name.event', 0)
 
 
 def test__action__enter__calls_start_and_returns_self(action):
