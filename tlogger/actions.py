@@ -18,9 +18,9 @@ from .utils import create_logger, create_guid
 class Action(object):
     CLEANSED_SUBSTITUTE = '******'
 
-    def __init__(self, name, logger, level=Level.info, uid=None,
-                 uid_field_name='id', params=None, action_stack=action_stack,
-                 sensitive_params=None, hide_params=None):
+    def __init__(self, name, logger, level=Level.INFO, uid=None, uid_field_name='id',
+                 params=None, action_stack=action_stack, sensitive_params=None,
+                 hide_params=None, trace_exception=False):
 
         self.name = name
         self.logger = logger
@@ -36,6 +36,8 @@ class Action(object):
         self.action_stack = action_stack
         self.sensitive_params = sensitive_params or ()
         self.hide_params = hide_params or ()
+
+        self.trace_exception = trace_exception
 
     def __enter__(self):
         self.start()
@@ -110,13 +112,15 @@ class Action(object):
             payload['exc_val'] = exc_val
 
         self.emit_event(
-            event_name, payload=payload or None, include_status=True
+            event_name, payload=payload or None, include_status=True,
+            trace_exception=self.trace_exception
         )
         self.action_stack.pop(self)
 
     def emit_event(self, suffix, payload=None, event_class=None, level=None,
                    raw_msg='', raw_args=None, raw_kwargs=None,
-                   include_params=False, include_status=False):
+                   include_params=False, include_status=False,
+                   trace_exception=False):
 
         if level is None:
             level = self.level
@@ -140,9 +144,13 @@ class Action(object):
         arguments = serializer.arguments()
 
         args = chain(arguments, raw_args or ())
+        kwargs = raw_kwargs or {}
+
+        if trace_exception:
+            kwargs['exc_info'] = trace_exception
 
         logger = self.get_logger()
-        logger.log(level.value, format_string, *args, **(raw_kwargs or {}))
+        logger.log(level.value, format_string, *args, **kwargs)
 
     def add_params(self, dictionary=None, **kwargs):
         if dictionary is None:
