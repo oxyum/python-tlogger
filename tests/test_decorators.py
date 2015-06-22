@@ -20,10 +20,9 @@ def test_wrapped_name_equals_function_name(function):
 
 
 def test_wrapped_returns_function_result(function):
-    function = mock.Mock(__name__=function.__name__)
     wrapped = wrap_function(function, mock.MagicMock(), mock.Mock())
-    result = wrapped()
-    assert result is function.return_value
+    result = wrapped(1)
+    assert result == function(1)
 
 
 def test_wrapped_calls_action_class(function):
