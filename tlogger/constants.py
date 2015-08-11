@@ -7,10 +7,13 @@ from __future__ import unicode_literals
 
 import logging
 
+from enum import Enum
 
-DEBUG = logging.DEBUG
-INFO = logging.INFO
-WARNING = logging.WARNING
-ERROR = logging.ERROR
-CRITICAL = logging.CRITICAL
-FATAL = logging.FATAL
+
+class Level(Enum):
+    debug = logging.DEBUG
+    info = logging.INFO
+    warning = logging.WARNING
+    error = logging.ERROR
+    critical = logging.CRITICAL
+    fatal = logging.FATAL

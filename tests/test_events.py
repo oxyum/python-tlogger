@@ -11,10 +11,8 @@ from tlogger.events import Event
 
 
 def test_event_items_ordered_manually():
-    payload = {
-        k: mock.Mock()
-        for k in Event.fields_head
-    }
+    payload = {k: mock.Mock() for k in Event.fields_head}
+
     e = Event(payload=payload)
 
     assert [k for k, v in e.items()] == list(Event.fields_head)
@@ -32,11 +30,8 @@ def test_event_items_ordered_lexically():
 
 
 def test_event_items_manual_before_random():
-    payload = {
-        k: mock.Mock()
-        for k in ['a', 'b', 'raw', 'c', 'ts', 'level', 'id']
-    }
+    payload = {k: mock.Mock() for k in ['a', 'b', 'raw', 'c', 'id']}
+
     e = Event(payload=payload)
-    assert [k for k, v in e.items()] == [
-        'ts', 'level', 'id', 'a', 'b', 'c', 'raw'
-    ]
+
+    assert [k for k, v in e.items()] == ['id', 'a', 'b', 'c', 'raw']

@@ -9,18 +9,18 @@ from itertools import chain
 
 from .action_stack import action_stack
 from .compat import string_types
-from .constants import INFO
+from .constants import Level
 from .events import Event
 from .serializers import KeyValueSerializer
-from .utils import create_ts, create_logger, create_guid
+from .utils import create_logger, create_guid
 
 
 class Action(object):
     CLEANSED_SUBSTITUTE = '******'
 
-    def __init__(self, name, logger, level=INFO, uid=None, uid_field_name='id',
-                 params=None, action_stack=action_stack, sensitive_params=None,
-                 hide_params=None):
+    def __init__(self, name, logger, level=Level.info, uid=None,
+                 uid_field_name='id', params=None, action_stack=action_stack,
+                 sensitive_params=None, hide_params=None):
 
         self.name = name
         self.logger = logger
@@ -62,7 +62,7 @@ class Action(object):
         return '<Action %s>' % self.name
 
     @classmethod
-    def create(cls, name, logger, level=INFO, id=None, guid=None, uid=None,
+    def create(cls, name, logger, level=Level.info, id=None, guid=None, uid=None,
                uid_field_name='id', params=None, sensitive_params=None,
                hide_params=None):
 
@@ -123,8 +123,7 @@ class Action(object):
 
         # Get `event`, `status` and `guid/id` fields
         event_params = self._event_context(
-            suffix, level,
-            include_params=include_params, include_status=include_status,
+            suffix, include_params=include_params, include_status=include_status
         )
 
         # Update with user-given fields allowing him to override what he wants
@@ -143,7 +142,7 @@ class Action(object):
         args = chain(arguments, raw_args or ())
 
         logger = self.get_logger()
-        logger.log(level, format_string, *args, **(raw_kwargs or {}))
+        logger.log(level.value, format_string, *args, **(raw_kwargs or {}))
 
     def add_params(self, dictionary=None, **kwargs):
         if dictionary is None:
@@ -164,14 +163,10 @@ class Action(object):
     def _get_name(self):
         return self.name
 
-    def _event_context(self, suffix, level,
-                       include_params=False, include_status=False):
-        context = {
-            'ts': create_ts(),
-            'event': '%s.%s' % (self._get_name(), suffix),
-            'level': level,
-        }
+    def _event_context(self, suffix, include_params=False,
+                       include_status=False):
 
+        context = {'event': '%s.%s' % (self._get_name(), suffix)}
         context.update(self._get_root_uid_item())
 
         filtered_params = self._filter_hidden_params(self.params)
