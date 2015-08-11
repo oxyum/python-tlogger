@@ -100,7 +100,7 @@ def test__action__start__pushes_self_to_stack(action):
 def test__action__start__emits_start_event(action):
     with mock.patch.object(action, 'emit_event') as emit_event:
         action.start()
-    emit_event.assert_called_ince_with('start', include_params=True)
+    emit_event.assert_called_once_with('start', include_params=True)
 
 
 def test__action__finish__pops_self_from_stack(action):
@@ -113,7 +113,7 @@ def test__action__finish__pops_self_from_stack(action):
 def test__action__finish__emits_finish_event(action):
     with mock.patch.object(action, 'emit_event') as emit_event:
         action.finish()
-    emit_event.assert_called_ince_with('finish', include_status=True)
+    emit_event.assert_called_once_with('finish', include_status=True)
 
 
 def test__action__fail__pops_self_from_stack(action):
@@ -126,8 +126,12 @@ def test__action__fail__pops_self_from_stack(action):
 def test__action__fail__emits_failed_event(action):
     with mock.patch.object(action, 'emit_event') as emit_event:
         action.fail()
-    emit_event.assert_called_ince_with('failed',
-                                       payload=None, include_status=True)
+    emit_event.assert_called_once_with(
+        'error',
+        payload=None,
+        include_status=True,
+        trace_exception=False
+    )
 
 
 def test__action__fail__passes_exception_info(action):
@@ -136,8 +140,12 @@ def test__action__fail__passes_exception_info(action):
     payload = {'exc_type': exc_type, 'exc_val': exc_val}
     with mock.patch.object(action, 'emit_event') as emit_event:
         action.fail(exc_type, exc_val)
-    emit_event.assert_called_ince_with('failed',
-                                       payload=payload, include_status=True)
+    emit_event.assert_called_once_with(
+        'error',
+        payload=payload,
+        include_status=True,
+        trace_exception=False
+    )
 
 
 def test__action__emit_event_calls_log(action):
@@ -187,8 +195,13 @@ def test__action__emit_event_calls_log_with_include_params(action):
         action.emit_event('event', include_params=True)
 
     assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s spam=%s',
-                     mock.ANY, 'action_name.event', 'eggs')
+           mock.call(
+               Level.info.value,
+               'guid=%s event=%s call_params=%s',
+               mock.ANY,
+               'action_name.event',
+               {'spam': 'eggs'}
+           )
 
 
 def test__action__emit_event_calls_log_with_include_status(action):

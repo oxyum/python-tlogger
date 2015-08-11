@@ -18,7 +18,7 @@ from .utils import create_logger, create_guid
 class Action(object):
     CLEANSED_SUBSTITUTE = '******'
 
-    def __init__(self, name, logger, level=Level.INFO, uid=None, uid_field_name='id',
+    def __init__(self, name, logger, level=Level.info, uid=None, uid_field_name='id',
                  params=None, action_stack=action_stack, sensitive_params=None,
                  hide_params=None, trace_exception=False):
 

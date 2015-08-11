@@ -45,5 +45,5 @@ def test_activates_action_context(function):
     logger = mock.Mock()
     wrap_function(function, action_class, logger)(1)
     action = action_class.return_value
-    action.__enter__.assert_called_once()
-    action.__exit__.assert_called_once()
+    action.__enter__.assert_called_once_with()
+    action.__exit__.assert_called_once_with(None, None, None)
