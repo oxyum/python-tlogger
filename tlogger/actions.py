@@ -145,19 +145,14 @@ class Action(object):
         logger = self.get_logger()
         logger.log(level, format_string, *args, **(raw_kwargs or {}))
 
-    def add_params(self, **params):
-        self.params.update(params)
-
-    def add_args(self, *args):
-        self.params.setdefault('args', []).extend(args)
-
-    def add_kwargs(self, **kwargs):
-        self.params.setdefault('kwargs', {}).update(kwargs)
+    def add_params(self, dictionary=None, **kwargs):
+        if dictionary is None:
+            dictionary = {}
+        assert bool(dictionary) != bool(kwargs)  # XOR
+        self.params.setdefault('call_params', {}).update(dictionary or kwargs)
 
     # Coz why not?
     add_param = add_params
-    add_arg = add_args
-    add_kwarg = add_kwargs
 
     def add_result(self, result):
         self.params['result'] = result
@@ -180,7 +175,9 @@ class Action(object):
         context.update(self._get_root_uid_item())
 
         filtered_params = self._filter_hidden_params(self.params)
-        cleansed_params = self._cleanse_params(filtered_params)
+        cleansed_params = filtered_params
+        cleansed_params['call_params'] = self._cleanse_params(
+            filtered_params.get('call_params', {}))
 
         if include_params:
             context.update(cleansed_params)

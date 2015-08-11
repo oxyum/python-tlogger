@@ -204,8 +204,9 @@ def test__action__emit_event_calls_log_with_include_params(action):
     assert get_logger.return_value.log.call_args == \
            mock.call(
                constants.INFO,
-               'ts=%s level=%s guid=%s event=%s spam=%s',
-               mock.ANY, constants.INFO, mock.ANY, 'action_name.event', 'eggs'
+               'ts=%s level=%s guid=%s event=%s call_params=%s',
+               mock.ANY, constants.INFO, mock.ANY, 'action_name.event',
+               {'spam': 'eggs'}
            )
 
 

@@ -6,6 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from functools import wraps
+import inspect
 
 from .action_binder import ActionBinder
 
@@ -38,8 +39,10 @@ def wrap_function(func, action_class, logger, **params):
     @wraps(func)
     def decorator(*args, **kwargs):
         action = action_class(name=action_name, logger=logger, **params)
-        action.add_args(*args)
-        action.add_kwargs(**kwargs)
+        func_call_params = inspect.getcallargs(func, *args, **kwargs)
+
+        if func_call_params:
+            action.add_params(func_call_params)
 
         with action:
             with ActionBinder(decorator, action):
