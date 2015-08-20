@@ -41,7 +41,7 @@ else:
 
 setup(
     name='tlogger',
-    version='0.2.2',
+    version='0.2.3.dev',
     description='Syntax sugar for logging.',
     long_description=long_description,
     author='Ivan Fedorov',
