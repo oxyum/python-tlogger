@@ -20,10 +20,9 @@ def test_wrapped_name_equals_function_name(function):
 
 
 def test_wrapped_returns_function_result(function):
-    function = mock.Mock(__name__=function.__name__)
     wrapped = wrap_function(function, mock.MagicMock(), mock.Mock())
-    result = wrapped()
-    assert result is function.return_value
+    result = wrapped(1)
+    assert result == function(1)
 
 
 def test_wrapped_calls_action_class(function):
@@ -46,5 +45,5 @@ def test_activates_action_context(function):
     logger = mock.Mock()
     wrap_function(function, action_class, logger)(1)
     action = action_class.return_value
-    action.__enter__.assert_called_once()
-    action.__exit__.assert_called_once()
+    action.__enter__.assert_called_once_with()
+    action.__exit__.assert_called_once_with(None, None, None)

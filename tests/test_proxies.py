@@ -49,15 +49,15 @@ def ctxmgr_proxy(action):
 def test_iterable_proxy_wo_steps(action, iterable_proxy):
     assert list(iterable_proxy) == [0, 1, 2]
 
-    action.start.assert_called_once()
-    action.finish.assert_called_once()
+    action.start.assert_called_once_with()
+    action.finish.assert_called_once_with()
 
 
 def test_iterable_proxy_with_steps(action, iterable_proxy_steps):
     assert list(iterable_proxy_steps) == [0, 1, 2]
 
-    action.start.assert_called_once()
-    action.finish.assert_called_once()
+    action.start.assert_called_once_with()
+    action.finish.assert_called_once_with()
     assert action.emit_event.call_count == 3
 
 

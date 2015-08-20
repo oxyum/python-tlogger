@@ -9,18 +9,18 @@ from itertools import chain
 
 from .action_stack import action_stack
 from .compat import string_types
-from .constants import INFO
+from .constants import Level
 from .events import Event
 from .serializers import KeyValueSerializer
-from .utils import create_ts, create_logger, create_guid
+from .utils import create_logger, create_guid
 
 
 class Action(object):
     CLEANSED_SUBSTITUTE = '******'
 
-    def __init__(self, name, logger, level=INFO, uid=None, uid_field_name='id',
+    def __init__(self, name, logger, level=Level.info, uid=None, uid_field_name='id',
                  params=None, action_stack=action_stack, sensitive_params=None,
-                 hide_params=None):
+                 hide_params=None, trace_exception=False):
 
         self.name = name
         self.logger = logger
@@ -36,6 +36,8 @@ class Action(object):
         self.action_stack = action_stack
         self.sensitive_params = sensitive_params or ()
         self.hide_params = hide_params or ()
+
+        self.trace_exception = trace_exception
 
     def __enter__(self):
         self.start()
@@ -62,7 +64,7 @@ class Action(object):
         return '<Action %s>' % self.name
 
     @classmethod
-    def create(cls, name, logger, level=INFO, id=None, guid=None, uid=None,
+    def create(cls, name, logger, level=Level.info, id=None, guid=None, uid=None,
                uid_field_name='id', params=None, sensitive_params=None,
                hide_params=None):
 
@@ -110,21 +112,22 @@ class Action(object):
             payload['exc_val'] = exc_val
 
         self.emit_event(
-            event_name, payload=payload or None, include_status=True
+            event_name, payload=payload or None, include_status=True,
+            trace_exception=self.trace_exception
         )
         self.action_stack.pop(self)
 
     def emit_event(self, suffix, payload=None, event_class=None, level=None,
                    raw_msg='', raw_args=None, raw_kwargs=None,
-                   include_params=False, include_status=False):
+                   include_params=False, include_status=False,
+                   trace_exception=False):
 
         if level is None:
             level = self.level
 
         # Get `event`, `status` and `guid/id` fields
         event_params = self._event_context(
-            suffix, level,
-            include_params=include_params, include_status=include_status,
+            suffix, include_params=include_params, include_status=include_status
         )
 
         # Update with user-given fields allowing him to override what he wants
@@ -141,23 +144,22 @@ class Action(object):
         arguments = serializer.arguments()
 
         args = chain(arguments, raw_args or ())
+        kwargs = raw_kwargs or {}
+
+        if trace_exception:
+            kwargs['exc_info'] = trace_exception
 
         logger = self.get_logger()
-        logger.log(level, format_string, *args, **(raw_kwargs or {}))
+        logger.log(level.value, format_string, *args, **kwargs)
 
-    def add_params(self, **params):
-        self.params.update(params)
-
-    def add_args(self, *args):
-        self.params.setdefault('args', []).extend(args)
-
-    def add_kwargs(self, **kwargs):
-        self.params.setdefault('kwargs', {}).update(kwargs)
+    def add_params(self, dictionary=None, **kwargs):
+        if dictionary is None:
+            dictionary = {}
+        assert bool(dictionary) != bool(kwargs)  # XOR
+        self.params.setdefault('call_params', {}).update(dictionary or kwargs)
 
     # Coz why not?
     add_param = add_params
-    add_arg = add_args
-    add_kwarg = add_kwargs
 
     def add_result(self, result):
         self.params['result'] = result
@@ -169,18 +171,16 @@ class Action(object):
     def _get_name(self):
         return self.name
 
-    def _event_context(self, suffix, level,
-                       include_params=False, include_status=False):
-        context = {
-            'ts': create_ts(),
-            'event': '%s.%s' % (self._get_name(), suffix),
-            'level': level,
-        }
+    def _event_context(self, suffix, include_params=False,
+                       include_status=False):
 
+        context = {'event': '%s.%s' % (self._get_name(), suffix)}
         context.update(self._get_root_uid_item())
 
         filtered_params = self._filter_hidden_params(self.params)
-        cleansed_params = self._cleanse_params(filtered_params)
+        cleansed_params = filtered_params
+        cleansed_params['call_params'] = self._cleanse_params(
+            filtered_params.get('call_params', {}))
 
         if include_params:
             context.update(cleansed_params)
