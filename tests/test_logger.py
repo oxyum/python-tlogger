@@ -8,6 +8,8 @@ from __future__ import unicode_literals
 import mock
 import pytest
 
+from tlogger.constants import Level
+
 
 MOD_PATH = 'tlogger.logger'
 
@@ -107,35 +109,35 @@ def test__logger__debug__calls_raw(tlogger):
     msg = 'Aaaa!'
     with mock.patch.object(tlogger, '_raw') as raw:
         tlogger.debug(msg)
-    raw.assert_called_once_with('debug', 10, msg)
+    raw.assert_called_once_with('debug', Level.debug, msg)
 
 
 def test__logger__info__calls_raw(tlogger):
     msg = 'Aaaa!'
     with mock.patch.object(tlogger, '_raw') as raw:
         tlogger.info(msg)
-    raw.assert_called_once_with('info', 20, msg)
+    raw.assert_called_once_with('info', Level.info, msg)
 
 
 def test__logger__warning__calls_raw(tlogger):
     msg = 'Aaaa!'
     with mock.patch.object(tlogger, '_raw') as raw:
         tlogger.warning(msg)
-    raw.assert_called_once_with('warning', 30, msg)
+    raw.assert_called_once_with('warning', Level.warning, msg)
 
 
 def test__logger__error__calls_raw(tlogger):
     msg = 'Aaaa!'
     with mock.patch.object(tlogger, '_raw') as raw:
         tlogger.error(msg)
-    raw.assert_called_once_with('error', 40, msg)
+    raw.assert_called_once_with('error', Level.error, msg)
 
 
 def test__logger__critical__calls_raw(tlogger):
     msg = 'Aaaa!'
     with mock.patch.object(tlogger, '_raw') as raw:
         tlogger.critical(msg)
-    raw.assert_called_once_with('critical', 50, msg)
+    raw.assert_called_once_with('critical', Level.critical, msg)
 
 
 def test__logger__set_status__delegates_to_current_action(tlogger):
