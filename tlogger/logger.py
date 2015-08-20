@@ -85,24 +85,24 @@ class Logger(object):
                    raw_msg=msg, raw_args=args, raw_kwargs=kwargs)
 
     def debug(self, msg, *args, **kwargs):
-        self._raw('debug', Level.debug.value, msg, *args, **kwargs)
+        self._raw('debug', Level.debug, msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
-        self._raw('info', Level.info.value, msg, *args, **kwargs)
+        self._raw('info', Level.info, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
-        self._raw('warning', Level.warning.value, msg, *args, **kwargs)
+        self._raw('warning', Level.warning, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
-        self._raw('error', Level.error.value, msg, *args, **kwargs)
+        self._raw('error', Level.error, msg, *args, **kwargs)
 
     def exception(self, msg, *args, **kwargs):
         exc_info = kwargs.pop('exc_info', 1)
-        self._raw('exception', Level.error.value, msg, *args, exc_info=exc_info,
+        self._raw('exception', Level.error, msg, *args, exc_info=exc_info,
                   **kwargs)
 
     def critical(self, msg, *args, **kwargs):
-        self._raw('critical', Level.critical.value, msg, *args, **kwargs)
+        self._raw('critical', Level.critical, msg, *args, **kwargs)
 
     def set_status(self, code, msg):
         self.get_current_action().set_status(code, msg)
