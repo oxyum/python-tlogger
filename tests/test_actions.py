@@ -13,8 +13,9 @@ from tlogger.constants import Level
 
 
 @pytest.fixture
-def action(logger, action_stack):
-    return Action('action_name', logger, action_stack=action_stack)
+def action(request, logger, action_stack):
+    return Action('action_name', logger, action_stack=action_stack,
+                  context_object=request.function)
 
 
 @pytest.fixture
@@ -29,7 +30,8 @@ def action_stack():
 
 
 def test__action__create__defaults(logger):
-    a = Action.create('name', logger)
+    a = Action.create('name', logger,
+                      context_object=test__action__create__defaults)
     assert a.name == 'name'
     assert a.logger is logger
     assert a.level == Level.info
@@ -42,37 +44,43 @@ def test__action__create__defaults(logger):
 
 def test__action__create__level(logger):
     level = mock.Mock()
-    a = Action.create('name', logger, level=level)
+    a = Action.create('name', logger, level=level,
+                      context_object=test__action__create__level)
     assert a.level is level
 
 
 def test__action__create__id(logger):
-    a = Action.create('name', logger, id='foobar')
+    a = Action.create('name', logger, id='foobar',
+                      context_object=test__action__create__id)
     assert a.uid == 'foobar'
     assert a.uid_field_name == 'id'
 
 
 def test__action__create__guid(logger):
-    a = Action.create('name', logger, guid='foobar')
+    a = Action.create('name', logger, guid='foobar',
+                      context_object=test__action__create__guid)
     assert a.uid == 'foobar'
     assert a.uid_field_name == 'guid'
 
 
 def test__action__create__uid(logger):
-    a = Action.create('name', logger, uid='foobar')
+    a = Action.create('name', logger, uid='foobar',
+                      context_object=test__action__create__uid)
     assert a.uid == 'foobar'
     assert a.uid_field_name == 'id'
 
 
 def test__action__create__uid_field_name(logger):
-    a = Action.create('name', logger, uid_field_name='foobar')
+    a = Action.create('name', logger, uid_field_name='foobar',
+                      context_object=test__action__create__uid_field_name)
     assert a.uid is None
     assert a.uid_field_name == 'foobar'
 
 
 def test__action__create__params(logger):
     params = mock.Mock()
-    a = Action.create('name', logger, params=params)
+    a = Action.create('name', logger, params=params,
+                      context_object=test__action__create__params)
     assert a.params is params
 
 
@@ -82,7 +90,7 @@ def test__action__create__wrong_combination(logger):
 
 
 def test__action__create_ad_hoc(logger):
-    a = Action.create_ad_hoc(logger)
+    a = Action.create_ad_hoc(logger, context_object=test__action__create_ad_hoc)
     assert a.name == 'ad_hoc_action'
     assert a.logger is logger
     assert len(a.uid) == 36  # looks like a valid uuid4
@@ -151,41 +159,32 @@ def test__action__fail__passes_exception_info(action):
 def test__action__emit_event_calls_log(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event')
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s', mock.ANY,
-                     'action_name.event')
+
+    assert get_logger.return_value.log.call_count == 1
+    assert get_logger.return_value.log.call_args[0][3] == \
+           'test_actions.test__action__emit_event_calls_log.action_name.event'
 
 
 def test__action__emit_event_calls_log_with_payload(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', payload={'spam': 'eggs'})
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s spam=%s', mock.ANY,
-                     'action_name.event', 'eggs')
 
-
-def test__action__emit_event_calls_log_with_event_class(action):
-    with mock.patch.object(action, 'get_logger') as get_logger:
-        action.emit_event('event', payload={'spam': 'eggs'})
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s spam=%s', mock.ANY,
-                     'action_name.event', 'eggs')
+    assert 'spam=%s' in get_logger.return_value.log.call_args[0][1]
+    assert get_logger.return_value.log.call_args[0][4] == 'eggs'
 
 
 def test__action__emit_event_calls_log_with_level(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', level=Level.error)
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.error.value, 'guid=%s event=%s', mock.ANY,
-                     'action_name.event')
+
+    assert get_logger.return_value.log.call_args[0][0] == Level.error.value
 
 
 def test__action__emit_event_calls_log_with_raw(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', raw_msg='Aaaa! %s %s', raw_args=[1, 2])
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s raw=Aaaa! %s %s',
-                     mock.ANY, 'action_name.event', 1, 2)
+
+    assert 'raw=Aaaa! %s %s' in get_logger.return_value.log.call_args[0][1]
 
 
 def test__action__emit_event_calls_log_with_include_params(action):
@@ -194,23 +193,14 @@ def test__action__emit_event_calls_log_with_include_params(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', include_params=True)
 
-    assert get_logger.return_value.log.call_args == \
-           mock.call(
-               Level.info.value,
-               'guid=%s event=%s call_params=%s',
-               mock.ANY,
-               'action_name.event',
-               {'spam': 'eggs'}
-           )
+    assert 'call_params=%s' in get_logger.return_value.log.call_args[0][1]
 
 
 def test__action__emit_event_calls_log_with_include_status(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', include_status=True)
 
-    assert get_logger.return_value.log.call_args == \
-           mock.call(Level.info.value, 'guid=%s event=%s status_code=%s',
-                     mock.ANY, 'action_name.event', 0)
+    assert 'status_code=%' in get_logger.return_value.log.call_args[0][1]
 
 
 def test__action__enter__calls_start_and_returns_self(action):

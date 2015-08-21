@@ -11,16 +11,25 @@ from .action_stack import action_stack
 from .compat import string_types
 from .constants import Level
 from .events import Event
+from .qualified_name import find_qualified_name
 from .serializers import KeyValueSerializer
 from .utils import create_logger, create_guid
 
 
 class Action(object):
     CLEANSED_SUBSTITUTE = '******'
+    NAME_CHAIN_SEP = '.'
+    NAME_SUFFIX_SEP = '.'
 
     def __init__(self, name, logger, level=Level.info, uid=None, uid_field_name='id',
                  params=None, action_stack=action_stack, sensitive_params=None,
-                 hide_params=None, trace_exception=False):
+                 hide_params=None, trace_exception=False, context_object=None):
+
+        # TODO: make `context_object` parameter explicitly required (positional)
+        # (and break backward compatibility)
+        # TODO: make `name` parameter optional (it is now is derived from context_object)
+        if context_object is None:
+            raise TypeError('Missing required parameter: context_object')
 
         self.name = name
         self.logger = logger
@@ -38,6 +47,7 @@ class Action(object):
         self.hide_params = hide_params or ()
 
         self.trace_exception = trace_exception
+        self.context_object = context_object
 
     def __enter__(self):
         self.start()
@@ -61,12 +71,14 @@ class Action(object):
         return str(self.__unicode__())
 
     def __unicode__(self):
-        return '<Action %s>' % self.name
+        return '<Action {}>'.format(self._get_full_name())
 
     @classmethod
     def create(cls, name, logger, level=Level.info, id=None, guid=None, uid=None,
                uid_field_name='id', params=None, sensitive_params=None,
-               hide_params=None):
+               hide_params=None, context_object=None):
+        # TODO: make `context_object` parameter explicitly required (positional)
+        # (and break backward compatibility)
 
         if len(list(filter(lambda x: x is not None, [id, uid, guid]))) > 1:
             raise ValueError('id, uid and guid arguments are mutually exclusive')
@@ -78,16 +90,18 @@ class Action(object):
 
         return cls(name, logger, level=level, uid=uid,
                    uid_field_name=uid_field_name, params=params,
-                   sensitive_params=sensitive_params, hide_params=hide_params)
+                   sensitive_params=sensitive_params, hide_params=hide_params,
+                   context_object=context_object)
 
     @classmethod
-    def create_ad_hoc(cls, logger, params=None):
+    def create_ad_hoc(cls, logger, context_object, params=None):
         uid_field_name, uid = cls.generate_uid_tuple()
         return cls(
             name='ad_hoc_action',
             logger=logger,
             uid_field_name=uid_field_name, uid=uid,
             params=params,
+            context_object=context_object,
         )
 
     @classmethod
@@ -168,13 +182,20 @@ class Action(object):
         self.status_code = code
         self.status_message = message
 
-    def _get_name(self):
-        return self.name
+    @property
+    def context_name(self):
+        return find_qualified_name(self.context_object)
+
+    def _get_full_name(self):
+        return self.NAME_CHAIN_SEP.join(
+            filter(None, (self.context_name, self.name)))
 
     def _event_context(self, suffix, include_params=False,
                        include_status=False):
 
-        context = {'event': '%s.%s' % (self._get_name(), suffix)}
+        context = {
+            'event': self.NAME_SUFFIX_SEP.join((self._get_full_name(), suffix))
+        }
         context.update(self._get_root_uid_item())
 
         filtered_params = self._filter_hidden_params(self.params)

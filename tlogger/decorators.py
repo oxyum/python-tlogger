@@ -30,15 +30,12 @@ def wrap_function(func, action_class, logger, **params):
     :return: wrapping function
     :rtype: function
     """
-    action_name = (
-        params.pop('action_name', None) or
-        getattr(func, '__name__', None) or
-        getattr(func.__class__, '__name__')
-    )
+    action_name = params.pop('action_name', None)
 
     @wraps(func)
     def decorator(*args, **kwargs):
-        action = action_class(name=action_name, logger=logger, **params)
+        action = action_class(name=action_name, logger=logger,
+                              context_object=func, **params)
         func_call_params = inspect.getcallargs(func, *args, **kwargs)
 
         if func_call_params:
