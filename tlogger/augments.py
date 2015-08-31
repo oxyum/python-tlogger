@@ -42,7 +42,7 @@ class TLoggerLogRecord(logging.LogRecord):
                     msg = self.msg      #Defer encoding till later
         if self.args:
             msg = msg % tuple(
-                '"{}"'.format(str(arg).encode('string_escape'))
+                '"{}"'.format(str(arg).encode('unicode_escape').decode())
                 for arg in self.args
             )
         return msg

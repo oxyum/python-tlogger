@@ -15,7 +15,7 @@ class KeyValueSerializer(object):
         return ' '.join(
             '{}=%s'.format(k)
             if k not in self.inline
-            else '{}="{}"'.format(k, str(v).encode('string_escape'))
+            else '{}="{}"'.format(k, str(v).encode('unicode_escape').decode())
             for k, v in self.event.items()
         )
 

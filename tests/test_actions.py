@@ -184,7 +184,7 @@ def test__action__emit_event_calls_log_with_raw(action):
     with mock.patch.object(action, 'get_logger') as get_logger:
         action.emit_event('event', raw_msg='Aaaa! %s %s', raw_args=[1, 2])
 
-    assert 'raw=Aaaa! %s %s' in get_logger.return_value.log.call_args[0][1]
+    assert 'raw="Aaaa! %s %s"' in get_logger.return_value.log.call_args[0][1]
 
 
 def test__action__emit_event_calls_log_with_include_params(action):
