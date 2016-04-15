@@ -1,0 +1,16 @@
+sudo: false
+
+language: python
+
+env:
+  - TOXENV=py27
+  - TOXENV=py34
+
+install: pip install tox
+
+script: tox
+
+branches:
+  only:
+    - master
+    - 0.1.x

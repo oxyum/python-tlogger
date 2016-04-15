@@ -1,36 +1,64 @@
+# Backup files
+*~
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
+*$py.class
 
 # C extensions
 *.so
 
-# Packages
+# Distribution / packaging
+*.egg-info/
+.eggs/
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+env/
+lib/
+lib64/
+parts/
+sdist/
+var/
 *.egg
-*.egg-info
-dist
-build
-eggs
-parts
-bin
-var
-sdist
-develop-eggs
+.Python
 .installed.cfg
-lib
-lib64
-__pycache__
+MANIFEST
 
 # Installer logs
 pip-log.txt
+pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+htmlcov/
+.tox/
 .coverage
-.tox
+.coverage.*
+.cache
 nosetests.xml
+coverage.xml
+*,cover
 
 # Translations
 *.mo
+*.pot
 
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
+# Django stuff:
+*.log
+db.sqlite3
+local_settings.py
+/project/settings/*.local.py
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+.dir-locals.el
+.idea
+requirements-local.txt
