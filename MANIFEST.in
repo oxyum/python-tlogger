@@ -1,5 +1,3 @@
 include DESCRIPTION.rst
 include README.rst
-include requirements-test.txt
-include requirements.txt
-recursive-include tests *
+recursive-include tests *.py
