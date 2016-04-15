@@ -14,7 +14,8 @@ CALLABLE_ARG_PREFIX = "callable_arg__"
 class TLoggerFormatter(logging.Formatter):
 
     converter = time.gmtime
-    FMT = "ts=%(asctime)s.%(msecs)dZ level=%(levelname)s %(message)s"
+    FMT = "ts=%(asctime)s.%(msecs)03dZ level=%(levelname)s %(message)s"
+
     DATEFMT = "%Y-%m-%dT%H:%M:%S"
 
     def __init__(self, fmt=None, datefmt=None):
