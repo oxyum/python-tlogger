@@ -35,7 +35,7 @@ with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
 
 setup(
     name='tlogger',
-    version='0.1.1.dev',
+    version='0.1.1',
     description='Syntax sugar for logging.',
     long_description=long_description,
     author='Ivan Fedorov',
