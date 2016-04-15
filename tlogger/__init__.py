@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
-import json
+# -*- mode: python; coding: utf-8; -*-
+import logging
+import time
 from collections import OrderedDict
 from inspect import getcallargs
 from functools import partial
-import logging
-import time
 
 from tlogger.method_decorator import method_decorator
 
@@ -175,7 +173,6 @@ def use_logger(function=None,
                 need_restore = True
                 old = self.func.func_globals[logger_var]
 
-
             if logger_class is None:
                 _logger_class = TLogger
             else:
@@ -212,6 +209,7 @@ def use_logger(function=None,
         return actual_decorator(function)
 
     return actual_decorator
+
 
 def get_logger_decorator(logger_name):
     return partial(use_logger, logger_name=logger_name)
