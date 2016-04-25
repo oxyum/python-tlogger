@@ -22,8 +22,9 @@ class Event(object):
             if field in self.payload and field not in omit:
                 yield (field, self.payload[field])
 
-        for field in sorted(set(self.payload) - set(self.fields_head)
-                                              - set(self.fields_tail)):
+        for field in sorted(set(self.payload) -
+                            set(self.fields_head) -
+                            set(self.fields_tail)):
             if field not in omit:
                 yield (field, self.payload[field])
 
