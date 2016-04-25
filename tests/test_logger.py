@@ -82,13 +82,18 @@ def test__logger__event__calls_emit_event_on_given_action(tlogger):
 
 
 def test__logger__create_ad_hoc_action__returns_action(tlogger):
-    action = tlogger.create_ad_hoc_action()
+    action = tlogger.create_ad_hoc_action(
+        context_object=test__logger__create_ad_hoc_action__returns_action
+    )
     assert action.logger is tlogger.logger
     assert action.name == 'ad_hoc_action'
 
 
 def test__logger__start_action__returns_action(tlogger):
-    action = tlogger.start_action('new-action-name')
+    action = tlogger.start_action(
+        'new-action-name',
+        context_object=test__logger__start_action__returns_action,
+    )
     assert action.name == 'new-action-name'
     assert action.__class__ is tlogger.action_class
     assert action.logger is tlogger.logger
@@ -162,7 +167,8 @@ def test__logger__action_for__returns_bound_action(tlogger):
 
 def test__logger__iter__returns_iterable_proxy(tlogger):
     orig = range(5)
-    proxy = tlogger.iter(orig)
+    proxy = tlogger.iter(
+        orig, context_object=test__logger__iter__returns_iterable_proxy)
     assert list(proxy) == list(range(5))
     assert proxy._wrapped is orig
     assert proxy._action.name == 'iterations'

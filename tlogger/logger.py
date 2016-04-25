@@ -62,8 +62,9 @@ class Logger(object):
     def dump(self, **kwargs):
         self.event(suffix='dump_variable', payload=kwargs)
 
-    def create_ad_hoc_action(self):
-        return Action.create_ad_hoc(logger=self.logger)
+    def create_ad_hoc_action(self, context_object):
+        return Action.create_ad_hoc(logger=self.logger,
+                                    context_object=context_object)
 
     def event(self, suffix, payload, action=None, **kwargs):
         action = action or self.get_current_action()
@@ -110,12 +111,17 @@ class Logger(object):
     def action_for(self, func):
         return ActionBinder.get_action(func)
 
-    def iter(self, iterable, steps=False, name=None, **kwargs):
-        action = self.start_action(name or 'iterations', **kwargs)
+    def iter(self, iterable, steps=False, name=None, context_object=None,
+             **kwargs):
+        action = self.start_action(
+            name or 'iterations', context_object=context_object, **kwargs
+        )
         return IterableProxy(iterable, steps=steps, action=action)
 
     def context(self, context_manager, name=None, **kwargs):
-        action = self.start_action(name or 'context', **kwargs)
+        action = self.start_action(
+            name or 'context', context_object=context_manager, **kwargs
+        )
         return ContextManagerProxy(context_manager, action=action)
 
 
