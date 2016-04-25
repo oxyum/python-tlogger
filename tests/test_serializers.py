@@ -18,7 +18,7 @@ def test_format_string():
 def test_format_string_inline():
     event = Event({'foo': 1, 'bar': 2})
     serializer = KeyValueSerializer(event, inline=['bar'])
-    assert serializer.format_string() == 'bar=2 foo=%s'
+    assert serializer.format_string() == 'bar="2" foo=%s'
 
 
 def test_arguments():
