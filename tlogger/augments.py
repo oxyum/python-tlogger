@@ -31,7 +31,7 @@ class TLoggerLogRecord(logging.LogRecord):
         Return the message for this LogRecord after merging any user-supplied
         arguments with the message.
         """
-        if not logging._unicode: #if no unicode support...
+        if not logging._unicode:  # if no unicode support...
             msg = str(self.msg)
         else:
             msg = self.msg
@@ -39,7 +39,7 @@ class TLoggerLogRecord(logging.LogRecord):
                 try:
                     msg = str(self.msg)
                 except UnicodeError:
-                    msg = self.msg      #Defer encoding till later
+                    msg = self.msg  # Defer encoding till later
         if self.args:
             msg = msg % tuple(
                 '"{}"'.format(str(arg).encode('unicode_escape').decode())
