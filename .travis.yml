@@ -13,3 +13,4 @@ script: tox
 branches:
   only:
     - master
+    - 0.1.x

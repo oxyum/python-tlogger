@@ -49,6 +49,9 @@ coverage.xml
 
 # Django stuff:
 *.log
+db.sqlite3
+local_settings.py
+/project/settings/*.local.py
 
 # Sphinx documentation
 docs/_build/
@@ -56,5 +59,6 @@ docs/_build/
 # PyBuilder
 target/
 
-.idea
 .dir-locals.el
+.idea
+requirements-local.txt
