@@ -178,6 +178,9 @@ class Action(object):
         context.update(self._get_root_uid_item())
 
         filtered_params = self._filter_hidden_params(self.params)
+        filtered_params['call_params'] = self._filter_hidden_params(
+            filtered_params.get('call_params', {}))
+
         cleansed_params = filtered_params
         cleansed_params['call_params'] = self._cleanse_params(
             filtered_params.get('call_params', {}))
