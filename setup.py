@@ -65,7 +65,7 @@ setup(
         'Framework :: Django :: 1.8',
     ],
     keywords='logging',
-    tests_require=[line.strip() for line in open('requirements-test.txt')],
+    tests_require=[line.strip() for line in open('requirements-test.txt', encoding='utf-8')],
     install_requires=install_requires,
     cmdclass={'test': PyTest},
     include_package_data=True,
